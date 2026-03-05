@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUAT KARTU IDENTITAS - Sipira Dsgn</title>
+    <!-- Library untuk mengubah HTML menjadi Gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            /* Warna Baru: Biru Langit & Putih */
+            --ktp-blue: #87CEEB;
+            --ktp-blue-dark: #4682B4;
+            --ktp-white: #ffffff;
+            --bg-color: #f0f8ff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* --- AREA INPUT FORM --- */
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Input File Styling */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-btn {
+            background-color: var(--ktp-blue);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-input-btn:hover {
+            background-color: var(--ktp-blue-dark);
+        }
+
+        .btn-download {
+            background-color: var(--ktp-blue);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-download:hover {
+            background-color: var(--ktp-blue-dark);
+        }
+
+        /* --- AREA PREVIEW KARTU (KTP STYLE) --- */
+        .card-wrapper {
+            padding: 20px;
+            background: transparent;
+        }
+
+        #card-preview {
+            width: 350px;
+            height: 500px;
+            background-color: var(--ktp-white);
+            border: 2px solid var(--ktp-blue);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(135, 206, 235, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Biru Langit KTP */
+        .ktp-header {
+            background: linear-gradient(135deg, var(--ktp-blue) 0%, var(--ktp-blue-dark) 100%);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 3px solid var(--ktp-blue-dark);
+        }
+
+        .ktp-header h2 {
+            margin: 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .ktp-header p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Isi Kartu */
+        .ktp-body {
+            padding: 20px;
+            display: flex;
+            flex: 1;
+        }
+
+        /* Kolom Kiri (Foto & ID) */
+        .ktp-left {
+            width: 35%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: 1px dashed #ccc;
+            padding-right: 10px;
+        }
+
+        .photo-container {
+            width: 90px;
+            height: 110px;
+            background-color: #e6f7ff;
+            border: 2px solid var(--ktp-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--ktp-blue-dark);
+            text-align: center;
+            padding: 5px;
+        }
+
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .id-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--ktp-blue-dark);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Kolom Kanan (Data) */
+        .ktp-right {
+            width: 65%;
+            padding-left: 15px;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .data-row {
+            margin-bottom: 8px;
+            display: flex;
+        }
+
+        .data-label {
+            width: 100px;
+            font-weight: bold;
+            color: var(--ktp-blue-dark);
+        }
+
+        .data-value {
+            flex: 1;
+            border-bottom: 1px dotted #999;
+            padding-bottom: 2px;
+            min-height: 18px;
+        }
+
+        /* Footer Kartu */
+        .ktp-footer {
+            background-color: #f0f8ff;
+            padding: 10px;
+            text-align: center;
+            font-size: 10px;
+            color: #555;
+            border-top: 2px solid var(--ktp-blue);
+        }
+
+        /* Footer Website */
+        .website-footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Responsif untuk HP */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .form-section {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>BUAT KARTU IDENTITAS</h1>
+
+    <div class="container">
+        
+        <!-- FORM INPUT -->
+        <div class="form-section">
+            <h3>Isi Data Diri</h3>
+            
+            <!-- Upload Foto -->
+            <div class="form-group">
+                <label>Foto Designers</label>
+                <div class="file-input-wrapper">
+                    <div class="file-input-btn">📷 Pilih Foto</div>
+                    <input type="file" id="input-foto" accept="image/*" onchange="updatePhoto()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>ID Number</label>
+                <input type="text" id="input-id" value="00" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Nama Designers</label>
+                <input type="text" id="input-nama" placeholder="Contoh: Budi Santoso" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Gol Darah</label>
+                <input type="text" id="input-goldar" placeholder="A / O" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Hobi</label>
+                <input type="text" id="input-hobi" placeholder="Coding, Desain" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Tanggal Lahir</label>
+                <input type="text" id="input-tgl" placeholder="1 Januari 2000" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp</label>
+                <input type="text" id="input-wa" placeholder="0812..." oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Instagram</label>
+                <input type="text" id="input-ig" placeholder="@username" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Youtube</label>
+                <input type="text" id="input-yt" placeholder="Channel Name" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label>Tiktok</label>
+                <input type="text" id="input-tk" placeholder="@username" oninput="updateCard()">
+            </div>
+
+            <button class="btn-download" onclick="downloadCard()">DOWNLOAD KARTU</button>
+        </div>
+
+        <!-- PREVIEW KARTU -->
+        <div class="card-wrapper">
+            <div id="card-preview">
+                <div class="ktp-header">
+                    <h2>KARTU IDENTITAS</h2>
+                    <p>DESIGNERS</p>
+                </div>
+                
+                <div class="ktp-body">
+                    <div class="ktp-left">
+                        <div class="photo-container">
+                            <div class="photo-placeholder" id="photo-placeholder">
+                                FOTO<br>DESIGNER
+                            </div>
+                            <img id="display-photo" src="" alt="Foto">
+                        </div>
+                        <div class="id-number">
+                            ID <span id="display-id">00</span>
+                        </div>
+                    </div>
+
+                    <div class="ktp-right">
+                        <div class="data-row">
+                            <div class="data-label">Nama</div>
+                            <div class="data-value" id="display-nama">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Gol Darah</div>
+                            <div class="data-value" id="display-goldar">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Hobi</div>
+                            <div class="data-value" id="display-hobi">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Tgl Lahir</div>
+                            <div class="data-value" id="display-tgl">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">WhatsApp</div>
+                            <div class="data-value" id="display-wa">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Instagram</div>
+                            <div class="data-value" id="display-ig">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Youtube</div>
+                            <div class="data-value" id="display-yt">-</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="data-label">Tiktok</div>
+                            <div class="data-value" id="display-tk">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ktp-footer">
+                    © @sipira dsgn 0858-0011-4299
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="website-footer">
+        &copy; Sipira Dsgn - All Rights Reserved
+    </div>
+
+    <script>
+        // Fungsi untuk update foto
+        function updatePhoto() {
+            const fileInput = document.getElementById('input-foto');
+            const photoDisplay = document.getElementById('display-photo');
+            const photoPlaceholder = document.getElementById('photo-placeholder');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    photoDisplay.src = e.target.result;
+                    photoDisplay.style.display = 'block';
+                    photoPlaceholder.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        // Fungsi untuk update teks secara real-time
+        function updateCard() {
+            const id = document.getElementById('input-id').value;
+            const nama = document.getElementById('input-nama').value;
+            const goldar = document.getElementById('input-goldar').value;
+            const hobi = document.getElementById('input-hobi').value;
+            const tgl = document.getElementById('input-tgl').value;
+            const wa = document.getElementById('input-wa').value;
+            const ig = document.getElementById('input-ig').value;
+            const yt = document.getElementById('input-yt').value;
+            const tk = document.getElementById('input-tk').value;
+
+            document.getElementById('display-id').innerText = id;
+            document.getElementById('display-nama').innerText = nama || '-';
+            document.getElementById('display-goldar').innerText = goldar || '-';
+            document.getElementById('display-hobi').innerText = hobi || '-';
+            document.getElementById('display-tgl').innerText = tgl || '-';
+            document.getElementById('display-wa').innerText = wa || '-';
+            document.getElementById('display-ig').innerText = ig || '-';
+            document.getElementById('display-yt').innerText = yt || '-';
+            document.getElementById('display-tk').innerText = tk || '-';
+        }
+
+        // Fungsi Download Gambar
+        function downloadCard() {
+            const cardElement = document.getElementById('card-preview');
+            
+            html2canvas(cardElement, {
+                scale: 2,
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Kartu-Identitas-Designers.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
